@@ -1,0 +1,72 @@
+[project]
+name = "voltex-backend"
+version = "0.1.0"
+description = "VOLTEX backend (FastAPI + PostgreSQL)"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "VOLTEX Team" }]
+license = { text = "Proprietary" }
+
+dependencies = [
+    "fastapi>=0.115.0,<1.0",
+    "uvicorn[standard]>=0.30.0,<1.0",
+    "pydantic>=2.7,<3.0",
+    "pydantic-settings>=2.4,<3.0",
+    "sqlalchemy>=2.0.30,<3.0",
+    "alembic>=1.13.0,<2.0",
+    "psycopg[binary]>=3.2.0,<4.0",
+    "passlib[bcrypt]>=1.7.4,<2.0",
+    "bcrypt==4.0.1",
+    "PyJWT>=2.8.0,<3.0",
+    "python-multipart>=0.0.9,<1.0",
+    "httpx>=0.27.0,<1.0",
+    "email-validator>=2.2.0,<3.0",
+    "structlog>=24.1.0,<25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0,<9.0",
+    "pytest-asyncio>=0.23.0,<1.0",
+    "pytest-cov>=5.0.0,<6.0",
+    "ruff>=0.5.0,<1.0",
+    "mypy>=1.10.0,<2.0",
+    "types-passlib>=1.7.7.20240819",
+    "freezegun>=1.5.0,<2.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["tests*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "ASYNC", "S", "RUF"]
+ignore = ["S101", "S104", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"migrations/*" = ["E501"]
+"tests/*" = ["S", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+markers = [
+    "unit: pure-python unit tests, no DB",
+    "integration: requires PostgreSQL",
+]
+asyncio_mode = "auto"

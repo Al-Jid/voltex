@@ -29,18 +29,19 @@ export function DemoProvider({ children }: PropsWithChildren) {
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const queue = useRef<Promise<unknown>>(Promise.resolve());
+  const canPersist = useRef(true);
   useEffect(() => {
     let active = true;
     void AsyncStorage.getItem(KEY).then(raw => {
       if (!raw || !active) return;
       const saved = JSON.parse(raw) as Partial<State>;
       if (validState(saved)) setState({ ...saved, drafts: validDrafts(saved.drafts) ? saved.drafts : {} });
-      else setStorageError(true);
-    }).catch(() => { if (active) setStorageError(true); }).finally(() => { if (active) setReady(true); });
+      else { canPersist.current = false; setStorageError(true); }
+    }).catch(() => { if (active) { canPersist.current = false; setStorageError(true); } }).finally(() => { if (active) setReady(true); });
     return () => { active = false; };
   }, []);
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !canPersist.current) return;
     queue.current = queue.current.then(() => AsyncStorage.setItem(KEY, JSON.stringify(state))).then(() => setStorageError(false)).catch(() => setStorageError(true));
   }, [state, ready]);
   return <Context.Provider value={{ state, ready, storageError, update: setState, reset: () => setState(seed()) }}>{children}</Context.Provider>;
