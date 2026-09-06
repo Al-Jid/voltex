@@ -43,7 +43,12 @@ export function LogSaleScreen() {
 }
 export function SaleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>(); const { state } = useDemo(); const { tx, money, date } = useUI(); const sale = state.sales.find(s => s.id === id); const [shareError, setShareError] = useState('');
-  if (!sale) return <Screen back title={tx('Sale detail', 'تفاصيل البيع')}><Empty title={tx('Sale not found', 'العملية غير موجودة')} detail={tx('Return to your sales list.', 'ارجع لقائمة المبيعات.')} /><Button title={tx('Sales', 'المبيعات')} onPress={() => router.replace('/(tabs)/sales')} /></Screen>;
+  if (!sale) return <Screen back title={tx('Sale detail', 'تفاصيل البيع')}>
+    <Empty title={id ? tx('This sale is no longer available', 'هذه العملية لم تعد متاحة') : tx('Choose a sale to view', 'اختر عملية لعرض تفاصيلها')} detail={tx('Select a recorded sale below, or record a new one.', 'اختر عملية مسجلة بالأسفل أو سجّل عملية جديدة.')} />
+    {state.sales.length > 0 && <Card>{state.sales.map(item => { const product = products.find(p => p.id === item.productId); return <RowLink key={item.id} icon="sales" title={tx(product?.name ?? item.id, product?.ar ?? item.id)} detail={`${item.id} · ${date(item.date)}`} onPress={() => router.replace({ pathname: '/detail/sale', params: { id: item.id } })} />; })}</Card>}
+    <Button title={tx('Log a sale', 'تسجيل بيع')} onPress={() => router.push('/sheet/log-sale')} />
+    <Button title={tx('All sales', 'كل المبيعات')} secondary onPress={() => router.replace('/(tabs)/sales')} />
+  </Screen>;
   const p = products.find(p => p.id === sale.productId)!;
   return <Screen back title={tx('Sale detail', 'تفاصيل البيع')} subtitle={sale.id}>
     <Card tinted><Pill text={sale.local ? tx('Saved locally', 'محفوظ محليًا') : tx('Sample record', 'سجل تجريبي')} /><Label size={32} bold>{money(p.price * sale.quantity)}</Label><Label>{date(sale.date)}</Label></Card>

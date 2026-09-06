@@ -24,9 +24,10 @@ These are design risks, not claims that the vendors above implemented their prod
 
 ## Native references
 
-- [Expo ImagePicker SDK 55](https://docs.expo.dev/versions/v55.0.0/sdk/imagepicker/): camera/library and permissions; microphone disabled.
-- [Expo Location SDK 55](https://docs.expo.dev/versions/v55.0.0/sdk/location/): foreground location.
-- [Expo FileSystem SDK 55](https://docs.expo.dev/versions/v55.0.0/sdk/filesystem/): copy selected images into app documents rather than keep only temporary picker files.
+- [Expo ImagePicker SDK 57](https://docs.expo.dev/versions/v57.0.0/sdk/imagepicker/): camera/library and permissions; microphone disabled. The SDK 57 API was checked against the installed declarations.
+- [Expo Location](https://docs.expo.dev/versions/v55.0.0/sdk/location/): original foreground-location design reference; installed SDK 57 remains the current dependency.
+- [Expo FileSystem](https://docs.expo.dev/versions/v55.0.0/sdk/filesystem/): original design reference for copying selected images into app documents; installed SDK 57 declarations are the implementation reference.
+- [Official SDK 57 compatibility table](https://raw.githubusercontent.com/expo/expo/sdk-57/packages/expo/bundledNativeModules.json): React 19.2.3, React Native 0.86.3 and bundled native package versions. User-updated package versions were retained.
 
 ## Decisions before backend integration
 

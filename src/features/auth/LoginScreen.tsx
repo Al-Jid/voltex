@@ -102,7 +102,7 @@ export default function LoginScreen() {
               <Pressable accessibilityRole="button" onPress={submit} style={({ pressed }) => [styles.login, { backgroundColor: c.primary, opacity: pressed ? 0.85 : 1 }]}>
                 <Text style={[styles.loginText, { color: c.onPrimary }]}>{t.login}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" onPress={() => router.replace('/(tabs)/home')} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+              <Pressable accessibilityRole="button" onPress={() => router.push('/demo-role')} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: c.primary, fontSize: 12 }}>{rtl ? 'استكشاف النسخة التجريبية بدون حساب' : 'Explore demo without an account'}</Text>
               </Pressable>
             </View>

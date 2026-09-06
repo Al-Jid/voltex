@@ -1,4 +1,5 @@
-import { Tabs, router } from 'expo-router';
+import { router } from 'expo-router';
+import { Tabs } from 'expo-router/js-tabs';
 import { Keyboard, Pressable, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

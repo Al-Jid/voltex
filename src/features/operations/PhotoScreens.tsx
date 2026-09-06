@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { Alert, Image, Linking, View } from 'react-native';
+import { Alert, Image, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -7,15 +8,39 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { Button, Card, Empty, Field, Label, Pill, Screen, useUI } from '../../components/ui';
 import { AppIcon } from '../../components/AppIcon';
 import { makeId, useDemo, type ShelfPhoto } from '../../demo/DemoProvider';
+import { ReviewFeedback } from '../../management/PromoterManagement';
+import { useManagement } from '../../management/ManagementProvider';
 
 function PhotoPreview({ uri }: { uri: string }) { const [failed, setFailed] = useState(false); const { tx } = useUI(); return failed ? <Empty title={tx('Photo unavailable', 'الصورة غير متاحة')} detail={tx('The local file could not be opened.', 'تعذّر فتح الملف المحلي.')} /> : <Image accessibilityLabel={tx('Shelf photo', 'صورة الرف')} source={{ uri }} onError={() => setFailed(true)} style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 12 }} />; }
 export function ShelfScreen() {
-  const { state } = useDemo(); const { tx, date } = useUI();
+  const { state, update } = useDemo(); const { tx, date, colors: c } = useUI(); const management = useManagement();
+  const [selectedId, setSelectedId] = useState<string | null>(null); const [editNote, setEditNote] = useState(''); const [message, setMessage] = useState('');
+  const selected = state.photos.find(p => p.id === selectedId);
+  function openPhoto(photo: ShelfPhoto) { setSelectedId(photo.id); setEditNote(photo.note); setMessage(''); }
+  function removePhoto(photo: ShelfPhoto) {
+    Alert.alert(tx('Remove this local photo?', 'حذف هذه الصورة المحلية؟'), tx('This removes your saved copy from this demo. The original in your library is unchanged.', 'سيُحذف الملف المحفوظ داخل النسخة التجريبية، وتبقى الصورة الأصلية في المعرض.'), [
+      { text: tx('Keep photo', 'الاحتفاظ بالصورة'), style: 'cancel' },
+      { text: tx('Remove', 'حذف'), style: 'destructive', onPress: () => {
+        try {
+          const folder = new Directory(Paths.document, 'voltex-shelf').uri.replace(/\/$/, '') + '/';
+          if (photo.uri.startsWith(folder)) { const file = new File(photo.uri); if (file.exists) file.delete(); }
+          update(s => ({ ...s, photos: s.photos.filter(p => p.id !== photo.id) })); setSelectedId(null);
+        } catch { setMessage(tx('Could not remove the saved copy. Try again.', 'تعذّر حذف النسخة المحفوظة. حاول مجددًا.')); }
+      } },
+    ]);
+  }
   return <Screen back title={tx('Shelf & photos', 'الأرفف والصور')} subtitle={tx('Citystars · Display quality', 'سيتي ستارز · جودة العرض')} action={{ icon: 'camera', label: tx('Capture photo', 'التقاط صورة'), run: () => router.push('/sheet/capture-photo') }}>
     <Card tinted><Label bold size={23}>{tx('A clear picture of your work.', 'صورة واضحة لشغلك.')}</Label><Label>{tx('Keep products visible, prices readable and the full shelf in frame.', 'خلّي المنتجات واضحة والأسعار مقروءة والرف كامل داخل الصورة.')}</Label></Card>
     {!state.photos.length && <Empty title={tx('Your first shelf story starts here', 'أول صورة لشغلك تبدأ هنا')} detail={tx('Take a photo or select one from your library. Nothing is uploaded.', 'التقط صورة أو اختر واحدة من المعرض. لن يتم رفع أي شيء.')} />}
-    {state.photos.map(p => <Card key={p.id}><PhotoPreview uri={p.uri} /><Pill text={tx('Saved locally · not reviewed', 'محفوظ محليًا · لم يُراجع')} /><Label bold>{p.note || tx('Shelf display', 'عرض الرف')}</Label><Label muted size={12}>{date(p.date)} · {p.source === 'camera' ? tx('Camera', 'الكاميرا') : tx('Photo library', 'المعرض')}</Label><Label size={12}>{p.coords ? `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}` : tx('No location attached', 'بدون موقع مرفق')}</Label></Card>)}
+    {state.photos.map(p => <Card key={p.id}><Pressable accessibilityRole="button" accessibilityLabel={tx('Open photo details', 'فتح تفاصيل الصورة')} onPress={() => openPhoto(p)}><PhotoPreview uri={p.uri} /></Pressable><Pill text={tx('Saved locally', 'محفوظ محليًا')} /><ReviewFeedback id={p.id} kind="photo" /><Label bold>{p.note || tx('Shelf display', 'عرض الرف')}</Label><Label muted size={12}>{date(p.date)} · {p.source === 'camera' ? tx('Camera', 'الكاميرا') : tx('Photo library', 'المعرض')}</Label><Label size={12}>{p.coords ? `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}` : tx('No location attached', 'بدون موقع مرفق')}</Label><Button title={tx('View photo details', 'عرض تفاصيل الصورة')} secondary onPress={() => openPhoto(p)} /></Card>)}
     <Button title={tx('Add shelf photo', 'إضافة صورة للرف')} onPress={() => router.push('/sheet/capture-photo')} />
+    <Modal visible={!!selected} animationType="slide" onRequestClose={() => setSelectedId(null)}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: c.background }}><ScrollView contentContainerStyle={{ padding: 20, gap: 16, width: '100%', maxWidth: 680, alignSelf: 'center' }}>
+        <Label bold size={24}>{tx('Photo details', 'تفاصيل الصورة')}</Label>
+        {selected && <><PhotoPreview key={selected.id} uri={selected.uri} /><Pill text={tx('Local photo · not uploaded', 'صورة محلية · لم تُرفع')} /><Label>{date(selected.date)}</Label><Label muted>{selected.source === 'camera' ? tx('Source: camera', 'المصدر: الكاميرا') : tx('Source: photo library', 'المصدر: المعرض')}</Label><Label muted>{selected.coords ? `${selected.coords.latitude.toFixed(5)}, ${selected.coords.longitude.toFixed(5)}` : tx('No location attached', 'بدون موقع مرفق')}</Label><Field label={tx('Edit notes', 'تعديل الملاحظات')} value={editNote} onChangeText={setEditNote} multiline maxLength={500} /><Button title={tx('Save notes', 'حفظ الملاحظات')} onPress={() => { if (selected.note !== editNote.trim()) { update(s => ({ ...s, photos: s.photos.map(p => p.id === selected.id ? { ...p, note: editNote.trim() } : p) })); management.change(`Photo ${selected.id}: notes updated, review reopened`, s => ({ ...s, reviews: s.reviews.filter(r => !(r.id === selected.id && r.kind === 'photo')) })); } setMessage(tx('Notes saved locally. Changed notes reopen supervisor review.', 'تم حفظ الملاحظات محليًا. تغييرها يعيد فتح مراجعة المشرف.')); }} /><Button title={tx('Remove local photo', 'حذف الصورة المحلية')} secondary onPress={() => removePhoto(selected)} /></>}
+        {!!message && <Label>{message}</Label>}<Button title={tx('Close', 'إغلاق')} secondary onPress={() => setSelectedId(null)} />
+      </ScrollView></SafeAreaView>
+    </Modal>
   </Screen>;
 }
 export function CapturePhotoScreen() {
@@ -33,12 +58,13 @@ export function CapturePhotoScreen() {
   }
   async function attachLocation() {
     if (busyRef.current) return; busyRef.current = true; setBusy(true); setError('');
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       const permission = await Location.requestForegroundPermissionsAsync(); if (!permission.granted) { permissionInfo(); return; }
       if (!await Location.hasServicesEnabledAsync()) { setError(tx('Enable location services, then try again.', 'فعّل خدمات الموقع ثم حاول مجددًا.')); return; }
-      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }); setCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+      const location = await Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }), new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error('Location timeout')), 15000); })]); setCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
     } catch { setError(tx('Could not get your location. You can save without it.', 'تعذّر تحديد موقعك. يمكنك الحفظ بدونه.')); }
-    finally { busyRef.current = false; setBusy(false); }
+    finally { if (timer) clearTimeout(timer); busyRef.current = false; setBusy(false); }
   }
   function save() {
     if (!image || saved.current || busyRef.current) return;

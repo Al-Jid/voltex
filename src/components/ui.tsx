@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { usePreferences } from '../theme/Preferences';
 import { useDemo } from '../demo/DemoProvider';
 import { AppIcon, type AppIconName } from './AppIcon';
+import { useManagement } from '../management/ManagementProvider';
 
 export function useUI() {
   const p = usePreferences();
@@ -20,10 +21,10 @@ export function Label({ children, muted, size = 14, bold = false }: PropsWithChi
   return <Text style={{ color: muted ? c.muted : c.text, fontSize: size, lineHeight: size * 1.45, fontWeight: bold ? '700' : '400', textAlign: language === 'ar' ? 'right' : 'left', writingDirection: language === 'ar' ? 'rtl' : 'ltr' }}>{children}</Text>;
 }
 export function Screen({ title, subtitle, children, back = false, action }: PropsWithChildren<{ title: string; subtitle?: string; back?: boolean; action?: { icon: AppIconName; label: string; run: () => void } }>) {
-  const { colors: c, row, tx, isDark } = useUI(); const { ready, storageError } = useDemo(); const insets = useSafeAreaInsets();
+  const { colors: c, row, tx, isDark } = useUI(); const { ready, storageError } = useDemo(); const insets = useSafeAreaInsets(); const { role } = useManagement();
   return <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: c.background }}>
     <StatusBar style={isDark ? 'light' : 'dark'} />
-    <View style={[s.header, row]}>{back && <IconButton name="back" label={tx('Back', 'رجوع')} onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)/home')} />}
+    <View style={[s.header, row]}>{back && <IconButton name="back" label={tx('Back', 'رجوع')} onPress={() => router.canGoBack() ? router.back() : router.replace(role === 'admin' ? '/admin/home' : role === 'supervisor' ? '/supervisor/home' : '/(tabs)/home')} />}
       <View style={{ flex: 1 }}><Label size={24} bold>{title}</Label>{subtitle && <Label muted size={12}>{subtitle}</Label>}</View>
       {action && <IconButton name={action.icon} label={action.label} onPress={action.run} />}
     </View>

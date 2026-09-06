@@ -2,7 +2,7 @@
 
 Source: `D:/Downloads/VOLTEX_1.PDF` (one-page sitemap) and the supplied login reference. The PDF is a navigation diagram, not 25 visual mockups. New pages extend the login palette, typography, outlined inputs and soft violet surfaces.
 
-The 25 count below includes Forgot Password. App Shell is a navigation container, not a 26th screen. The source's aggregate labels (25 screens / 18 full pages / 7 sheets) are not a one-to-one list of named modal routes; we preserve all named destinations. This implementation has five routed modal forms plus the existing language and appearance dialogs (seven modal surfaces).
+The 25 count below includes Forgot Password. App Shell is a navigation container, not a 26th screen. The source's aggregate labels (25 screens / 18 full pages / 7 sheets) are not a one-to-one list of named modal routes; we preserve all named destinations. There are five routed modal forms, the login language/appearance dialogs, and an additional photo-detail modal. Count history and lessons expand inside their parent screens; error recovery is not counted as a business screen.
 
 | # | Screen | Route | Entry and interactions |
 |---|---|---|---|
@@ -14,7 +14,7 @@ The 25 count below includes Forgot Password. App Shell is a navigation container
 | 6 | Sales | `/(tabs)/sales` | Today/week/month, bilingual product/reference search, totals, list, add, detail. Week begins Monday. |
 | 7 | Log sale | `/sheet/log-sale` | Select SKU, integer quantity, notes, calculated value; local draft; validates and saves once, then opens detail. |
 | 8 | Sale detail | `/detail/sale?id=…` | SKU, quantity, unit price, amount, branch, promoter, timestamp, status; native summary sharing and return to sales. |
-| 9 | Stock | `/(tabs)/stock` | Search; all/low/out filters; quantities, latest counts; count and prefilled restock actions. |
+| 9 | Stock | `/(tabs)/stock` | Search; all/low/out filters; quantities, latest counts and expandable count history/notes; count and prefilled restock actions. |
 | 10 | Submit count | `/sheet/submit-count?productId=…` | Product, actual count, discrepancy reason; local draft and saved observation. Does not overwrite reference inventory. |
 | 11 | Rewards | `/(tabs)/rewards` | Derived sample points, badges, training and challenge links, leaderboard. |
 | 12 | Leaderboard | `/detail/leaderboard` | Branch/team scope, sorted units, current user highlighted; other participants illustrative. |
@@ -22,7 +22,7 @@ The 25 count below includes Forgot Password. App Shell is a navigation container
 | 14 | More | `/(tabs)/more` | Profile, attendance, photos, requests, notifications, settings, help, leave demo. |
 | 15 | Attendance | `/detail/attendance` | Confirm local check-in/out, active shift status, branch/schedule, history. No verified attendance claim. |
 | 16 | Attendance log | `/detail/attendance-log` | Active/completed shifts, start/end, completed duration, empty state. |
-| 17 | Shelf & photos | `/detail/shelf` | Guidance, local gallery, source/date/location/notes, camera entry, empty and missing-file states. |
+| 17 | Shelf & photos | `/detail/shelf` | Guidance, local gallery, source/date/location/notes, detail preview, edit notes, confirmed removal, camera entry, empty/missing-file states. |
 | 18 | Capture photo | `/sheet/capture-photo` | Native camera/library, review/retake, notes, optional current-location request/removal; permission/error states; copies photos to app documents. |
 | 19 | Requests | `/detail/requests` | All/pending/approved/cancelled filters, empty state, detail and new-request navigation. |
 | 20 | New request | `/sheet/new-request?productId=…` | Restock/stock relocation, SKU, quantity, reason, receiving branch, persistent draft, local save. |
@@ -33,6 +33,8 @@ The 25 count below includes Forgot Password. App Shell is a navigation container
 | 25 | Help & training | `/detail/help` | Two readable lessons, expand/collapse, completion, reward points and FAQ. |
 
 ## Navigation and presentation
+
+Every listed internal URL now has a concrete file under `app/detail` or `app/sheet` and an explicit root-stack registration. The former `[screen]` dispatchers were removed because `screen` is a reserved navigation parameter. Missing sale/request IDs open record selection; unknown external URLs still use the global not-found recovery screen.
 
 - Bottom tabs: Home → Sales → Stock → Rewards → More.
 - Floating add button opens Log Sale, mirrored for Arabic and hidden with the keyboard.
@@ -54,4 +56,4 @@ The 25 count below includes Forgot Password. App Shell is a navigation container
 9. Open unknown detail IDs, empty filters and missing image files; verify recovery.
 10. Review VoiceOver/TalkBack labels, states and touch targets.
 
-No installation, typecheck, device run, screenshot comparison or build was performed under the no-run constraint. These scenarios remain required before declaring runtime readiness.
+The agent performed no installation, typecheck, device run, screenshot comparison or build under the no-run constraint. User-installed SDK 57 packages were already present and their manifests were read. These scenarios remain required before declaring runtime readiness.
