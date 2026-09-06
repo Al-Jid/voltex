@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="52" viewBox="0 0 200 52" role="img" aria-label="VOLTEX — Powering Performance">
+  <g fill="#4D3BC1" transform="translate(5 8) skewX(-12)">
+    <path d="M0 0h9l5 18L23 0h10L18 27H8Z"/>
+    <path fill-rule="evenodd" d="M45 0c-10 0-16 5-16 14s6 14 16 14 16-5 16-14S55 0 45 0Zm0 8c4 0 6 2 6 6s-2 6-6 6-6-2-6-6 2-6 6-6Z"/>
+    <path d="M65 0h10v19h16v8H65ZM86 0h31v8h-10v19H97V8H86ZM120 0h27v7h-17v3h14v7h-14v3h17v7h-27Z"/>
+  </g>
+  <path transform="translate(24 0)" fill="#AD2530" d="M132 0h15l6 10 8-10h15l-17 21 12 22h-16l-6-12-10 12h-16l20-23Z"/>
+  <text x="8" y="44" font-family="Arial,sans-serif" font-size="5.6" fill="#77717D">Powering Performance</text>
+</svg>

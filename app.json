@@ -1,0 +1,9 @@
+{
+  "expo": {
+    "name": "VOLTEX", "slug": "voltex", "version": "1.0.0", "scheme": "voltex",
+    "orientation": "portrait", "userInterfaceStyle": "automatic",
+    "ios": { "supportsTablet": true },
+    "android": { "softwareKeyboardLayoutMode": "resize" },
+    "plugins": ["expo-router", ["expo-image-picker", { "cameraPermission": "Allow VOLTEX to capture shelf photos you choose to record.", "photosPermission": "Allow VOLTEX to select shelf photos.", "microphonePermission": false }], ["expo-location", { "locationWhenInUsePermission": "Allow VOLTEX to attach your current location when you request it for a shelf photo." }]]
+  }
+}
